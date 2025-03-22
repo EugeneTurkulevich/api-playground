@@ -1,9 +1,5 @@
 import streamlit as st
 from openai import OpenAI
-import os
-
-os.environ.pop("HTTP_PROXY", None)
-os.environ.pop("HTTPS_PROXY", None)
 
 st.title("OpenAI API Playground")
 
