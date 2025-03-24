@@ -22,7 +22,7 @@ with tab1:
         else:
             try:
                 client = OpenAI(api_key=openai_api_key)
-                openai_response = client.responses.create(
+                openai_response = client.chat.completions.create(
                     model=openai_selected_model,
                     instructions=openai_system_prompt,
                     input=openai_user_prompt,
