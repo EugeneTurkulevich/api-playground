@@ -28,7 +28,7 @@ with tab1:
                         {"role": "system", "content": openai_system_prompt},
                         {"role": "user", "content": openai_user_prompt}
                     ],
-                    temperature=0.7,
+                    temperature=0.3,
                     max_tokens=300
                 )
                 st.subheader("Response:")
