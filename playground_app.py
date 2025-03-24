@@ -24,11 +24,15 @@ with tab1:
                 client = OpenAI(api_key=openai_api_key)
                 openai_response = client.chat.completions.create(
                     model=openai_selected_model,
-                    instructions=openai_system_prompt,
-                    input=openai_user_prompt,
+                    messages=[
+                        {"role": "system", "content": openai_system_prompt},
+                        {"role": "user", "content": openai_user_prompt}
+                    ],
+                    temperature=0.7,
+                    max_tokens=300
                 )
                 st.subheader("Response:")
-                st.write(openai_response.output_text)
+                st.write(openai_response.choices[0].message.content)
             except Exception as e:
                 st.error(f"Error: {e}")
 
