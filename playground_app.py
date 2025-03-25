@@ -31,14 +31,12 @@ def set_local_storage_js(key, value):
     </script>
     """
 
-def get_stored_value(key, default, is_numeric=False):
+def get_stored_value(key, default, type_fn=int):
     value = st.session_state.get(key, default)
-    if is_numeric:
-        try:
-            return float(value) if '.' in str(value) else int(value)
-        except ValueError:
-            return default
-    return value
+    try:
+        return type_fn(value)
+    except ValueError:
+        return default
 
 html = get_local_storage_js("temperature", 0.3)
 components.html(html, height=0)
@@ -47,7 +45,8 @@ components.html(html, height=0)
 
 st.sidebar.title("AI API Playground")
 
-temperature = st.sidebar.slider("Temperature", min_value=0.0, max_value=1.0, value=get_stored_value('temperature', 0.3), step=0.1)
+temperature = st.sidebar.slider("Temperature", min_value=0.0, max_value=1.0,
+                                value=get_stored_value('temperature', 0.3, float), step=0.1)
 st.sidebar.markdown("""
 "Temperature" is a parameter that controls the randomness of the model’s responses.
 * A low value (e.g., 0.1) makes the output more focused and deterministic.
@@ -55,7 +54,8 @@ st.sidebar.markdown("""
 The value ranges from 0.0 to 2.0, with 0.7 being a common balanced setting.
 """)
 
-max_tokens = st.sidebar.slider("Max Tokens", min_value=1, max_value=1000, value=get_stored_value('max_tokens', '50'), step=10)
+max_tokens = st.sidebar.slider("Max Tokens", min_value=1, max_value=1000,
+                               value=get_stored_value('max_tokens', 50, int), step=10)
 components.html(local_storage_js("max_tokens_slider", 50), height=0)
 st.sidebar.markdown("""
 "Max Tokens" is a parameter that controls the maximum number of tokens the model can generate in its response.
