@@ -63,12 +63,7 @@ with st.sidebar:
         grok_system_prompt_value = st_javascript("localStorage.getItem('grok_system_prompt') || ''")
         grok_user_prompt_value = st_javascript("localStorage.getItem('grok_user_prompt') || ''")
 
-        if grok_user_prompt_value is None:
-            st.info('loading...')
-            st.stop()
-
-    temperature = st.slider("Temperature", min_value=0.0, max_value=1.0,
-                                    value=temperature_value, step=0.1)
+    temperature = st.slider("Temperature", min_value=0.0, max_value=1.0, value=temperature_value, step=0.1)
     with st.expander("Temperature"):
         st.markdown("""
         "Temperature" is a parameter that controls the randomness of the model’s responses.
@@ -77,8 +72,7 @@ with st.sidebar:
         The value ranges from 0.0 to 2.0, with 0.7 being a common balanced setting.
         """)
 
-    max_tokens = st.slider("Max Tokens", min_value=10, max_value=1000,
-                                value=max_tokens_value, step=10)
+    max_tokens = st.slider("Max Tokens", min_value=10, max_value=1000, value=max_tokens_value, step=10)
     with st.expander("Max Tokens"):
         st.markdown("""
         "Max Tokens" is a parameter that controls the maximum number of tokens the model can generate in its response.
@@ -95,15 +89,12 @@ with tab1:
 
     col1, col2 = st.columns(2)
     with col1:
-        openai_api_key = st.text_input("Enter your OpenAI API Key", type="password",
-            value=openai_api_key_value)
+        openai_api_key = st.text_input("Enter your OpenAI API Key", type="password", value=openai_api_key_value)
     with col2:
         openai_selected_model = st.selectbox("Select Model", openai_model_options, index=model_index_value)
 
-    openai_system_prompt = st.text_area("OpenAI System Prompt", height=150,
-        value=openai_system_prompt_value)
-    openai_user_prompt = st.text_area("OpenAI User Prompt", height=150,
-        value=openai_user_prompt_value)
+    openai_system_prompt = st.text_area("OpenAI System Prompt", height=150, value=openai_system_prompt_value)
+    openai_user_prompt = st.text_area("OpenAI User Prompt", height=150, value=openai_user_prompt_value)
 
     if st.button("Send to OpenAI"):
         if not openai_api_key:
@@ -134,12 +125,9 @@ with tab1:
 
 with tab2:
 
-    grok_api_key = st.text_input("Enter your Grok API Key", type="password",
-        value=grok_api_key_value)
-    grok_system_prompt = st.text_area("Grok System Prompt", height=150,
-        value=grok_system_prompt_value)
-    grok_user_prompt = st.text_area("Grok User Prompt", height=150,
-        value=grok_user_prompt_value)
+    grok_api_key = st.text_input("Enter your Grok API Key", type="password", value=grok_api_key_value)
+    grok_system_prompt = st.text_area("Grok System Prompt", height=150, value=grok_system_prompt_value)
+    grok_user_prompt = st.text_area("Grok User Prompt", height=150, value=grok_user_prompt_value)
 
     if st.button("Send to Grok"):
         if not grok_api_key:
