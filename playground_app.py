@@ -81,8 +81,14 @@ with tab1:
             value=st_javascript("localStorage.getItem('openai_api_key') || ''"))
     with col2:
         openai_model_options = ["gpt-3.5-turbo", "gpt-4", "gpt-4o"]
-        openai_selected_model = st.selectbox("Select Model", openai_model_options,
-            index=openai_model_options.index(st_javascript("localStorage.getItem('openai_model') || 'gpt-3.5-turbo'")))
+        model_from_storage = st_javascript("localStorage.getItem('openai_model') || 'gpt-3.5-turbo'")
+        try:
+            index_value = openai_model_options.index(model_from_storage)
+        except (ValueError, TypeError):
+            index_value = 0
+        openai_selected_model = st.selectbox("Select Model", openai_model_options, index=index_value)
+        # openai_selected_model = st.selectbox("Select Model", openai_model_options,
+        #     index=openai_model_options.index(st_javascript("localStorage.getItem('openai_model') || 'gpt-3.5-turbo'")))
 
     openai_system_prompt = st.text_area("OpenAI System Prompt", height=150,
         value=st_javascript("localStorage.getItem('openai_system_prompt') || ''"))
