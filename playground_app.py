@@ -34,6 +34,13 @@ def set_local_storage_js(set_key, value_to_set):
     </script>
     """
 
+st.markdown("""
+    <style>
+        iframe[title="streamlit.components.v1.html"] {
+            display: none;
+        }
+    </style>
+""", unsafe_allow_html=True)
 components.html(get_local_storage_js('temperature', "0.3"), height=0)
 components.html(get_local_storage_js('max_tokens', "50"), height=0)
 components.html(get_local_storage_js('openai_model', "gpt-3.5-turbo"), height=0)
