@@ -84,6 +84,8 @@ with tab1:
         st.session_state['max_tokens'] = max_tokens
         components.html(set_local_storage_js("temperature", temperature), height=0)
         components.html(set_local_storage_js("max_tokens", max_tokens), height=0)
+        st.sidebar.write(f"Temperature: {temperature}")
+        st.sidebar.write(f"Max Tokens: {max_tokens}")
         if not openai_api_key:
             st.error("Please provide a valid API key.")
         else:
