@@ -31,10 +31,14 @@ def set_local_storage_js(key, value):
     </script>
     """
 
-def get_stored_value(key, default):
-    if key in st.session_state:
-        return st.session_state[key]
-    return default
+def get_stored_value(key, default, is_numeric=False):
+    value = st.session_state.get(key, default)
+    if is_numeric:
+        try:
+            return float(value) if '.' in str(value) else int(value)
+        except ValueError:
+            return default
+    return value
 
 html = get_local_storage_js("temperature", 0.3)
 components.html(html, height=0)
