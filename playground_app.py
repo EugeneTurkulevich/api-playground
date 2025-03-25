@@ -39,24 +39,29 @@ with st.sidebar:
     with st.expander("AI API Playground", expanded=False):
         components.html(get_local_storage_js('temperature', "0.3"), height=0)
         components.html(get_local_storage_js('max_tokens', "50"), height=0)
+        temperature_value = float(st_javascript("localStorage.getItem('temperature') || '0.3'"))
+        max_tokens_value = int(st_javascript("localStorage.getItem('max_tokens') || '50'"))
 
         components.html(get_local_storage_js('openai_api_key', ""), height=0)
         components.html(get_local_storage_js('openai_model', "gpt-3.5-turbo"), height=0)
         components.html(get_local_storage_js('openai_system_prompt', ""), height=0)
         components.html(get_local_storage_js('openai_user_prompt', ""), height=0)
+        openai_api_key_value = st_javascript("localStorage.getItem('openai_api_key') || ''")
+        openai_model_options = ["gpt-3.5-turbo", "gpt-4", "gpt-4o"]
+        model_from_storage = st_javascript("localStorage.getItem('openai_model') || 'gpt-3.5-turbo'")
+        try:
+            model_index_value = openai_model_options.index(model_from_storage)
+        except (ValueError, TypeError):
+            model_index_value = 0
+        openai_system_prompt_value = st_javascript("localStorage.getItem('openai_system_prompt') || ''")
+        openai_user_prompt_value = st_javascript("localStorage.getItem('openai_user_prompt') || ''")
 
         components.html(get_local_storage_js('grok_api_key', ""), height=0)
         components.html(get_local_storage_js('grok_system_prompt', ""), height=0)
         components.html(get_local_storage_js('grok_user_prompt', ""), height=0)
-
-        temperature_value = float(st_javascript("localStorage.getItem('temperature') || '0.3'"))
-
-        openai_model_options = ["gpt-3.5-turbo", "gpt-4", "gpt-4o"]
-        model_from_storage = st_javascript("localStorage.getItem('openai_model') || 'gpt-3.5-turbo'")
-        try:
-            index_value = openai_model_options.index(model_from_storage)
-        except (ValueError, TypeError):
-            index_value = 0
+        grok_api_key_value = st_javascript("localStorage.getItem('grok_api_key') || ''")
+        grok_system_prompt_value = st_javascript("localStorage.getItem('grok_system_prompt') || ''")
+        grok_user_prompt_value = st_javascript("localStorage.getItem('grok_user_prompt') || ''")
 
     temperature = st.slider("Temperature", min_value=0.0, max_value=1.0,
                                     value=temperature_value, step=0.1)
@@ -69,7 +74,7 @@ with st.sidebar:
         """)
 
     max_tokens = st.slider("Max Tokens", min_value=10, max_value=1000,
-                                value=int(st_javascript("localStorage.getItem('max_tokens') || '50'")), step=10)
+                                value=max_tokens_value, step=10)
     with st.expander("Max Tokens"):
         st.markdown("""
         "Max Tokens" is a parameter that controls the maximum number of tokens the model can generate in its response.
@@ -87,14 +92,14 @@ with tab1:
     col1, col2 = st.columns(2)
     with col1:
         openai_api_key = st.text_input("Enter your OpenAI API Key", type="password",
-            value=st_javascript("localStorage.getItem('openai_api_key') || ''"))
+            value=openai_api_key_value)
     with col2:
-        openai_selected_model = st.selectbox("Select Model", openai_model_options, index=index_value)
+        openai_selected_model = st.selectbox("Select Model", openai_model_options, index=model_index_value)
 
     openai_system_prompt = st.text_area("OpenAI System Prompt", height=150,
-        value=st_javascript("localStorage.getItem('openai_system_prompt') || ''"))
+        value=openai_system_prompt_value)
     openai_user_prompt = st.text_area("OpenAI User Prompt", height=150,
-        value=st_javascript("localStorage.getItem('openai_user_prompt') || ''"))
+        value=openai_user_prompt_value)
 
     if st.button("Send to OpenAI"):
         if not openai_api_key:
@@ -126,11 +131,11 @@ with tab1:
 with tab2:
 
     grok_api_key = st.text_input("Enter your Grok API Key", type="password",
-        value=st_javascript("localStorage.getItem('grok_api_key') || ''"))
+        value=grok_api_key_value)
     grok_system_prompt = st.text_area("Grok System Prompt", height=150,
-        value=st_javascript("localStorage.getItem('grok_system_prompt') || ''"))
+        value=grok_system_prompt_value)
     grok_user_prompt = st.text_area("Grok User Prompt", height=150,
-        value=st_javascript("localStorage.getItem('grok_user_prompt') || ''"))
+        value=grok_user_prompt_value)
 
     if st.button("Send to Grok"):
         if not grok_api_key:
