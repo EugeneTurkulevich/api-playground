@@ -37,31 +37,39 @@ def set_local_storage_js(set_key, value_to_set):
 with st.expander("", expanded=False):
     components.html(get_local_storage_js('temperature', "0.3"), height=0)
     components.html(get_local_storage_js('max_tokens', "50"), height=0)
+
+    components.html(get_local_storage_js('openai_api_key', ""), height=0)
     components.html(get_local_storage_js('openai_model', "gpt-3.5-turbo"), height=0)
     components.html(get_local_storage_js('openai_system_prompt', ""), height=0)
     components.html(get_local_storage_js('openai_user_prompt', ""), height=0)
-    components.html(get_local_storage_js('openai_api_key', ""), height=0)
-    components.html(get_local_storage_js('grok_key', ""), height=0)
+
+    components.html(get_local_storage_js('grok_api_key', ""), height=0)
+    components.html(get_local_storage_js('grok_system_prompt', ""), height=0)
+    components.html(get_local_storage_js('grok_user_prompt', ""), height=0)
 
 st.sidebar.title("AI API Playground")
 
-temperature = st.sidebar.slider("Temperature", min_value=0.0, max_value=1.0,
-                                value=float(st_javascript("localStorage.getItem('temperature') || '0.3'")), step=0.1)
-st.sidebar.markdown("""
-"Temperature" is a parameter that controls the randomness of the model’s responses.
-* A low value (e.g., 0.1) makes the output more focused and deterministic.
-* A high value (e.g., 1.0) makes it more creative and diverse, but less predictable.
-The value ranges from 0.0 to 2.0, with 0.7 being a common balanced setting.
-""")
+with st.sidebar:
 
-max_tokens = st.sidebar.slider("Max Tokens", min_value=10, max_value=1000,
-                               value=int(st_javascript("localStorage.getItem('max_tokens') || '50'")), step=10)
-st.sidebar.markdown("""
-"Max Tokens" is a parameter that controls the maximum number of tokens the model can generate in its response.
-* A low value (e.g., 10) makes the output shorter and more concise.
-* A high value (e.g., 100) makes it longer and more detailed.
-The value ranges from 1 to 4096, with 50 being a common balanced setting.
-""")
+    temperature = st.slider("Temperature", min_value=0.0, max_value=1.0,
+                                    value=float(st_javascript("localStorage.getItem('temperature') || '0.3'")), step=0.1)
+    with st.expander("Temperature"):
+        st.markdown("""
+        "Temperature" is a parameter that controls the randomness of the model’s responses.
+        * A low value (e.g., 0.1) makes the output more focused and deterministic.
+        * A high value (e.g., 1.0) makes it more creative and diverse, but less predictable.
+        The value ranges from 0.0 to 2.0, with 0.7 being a common balanced setting.
+        """)
+
+    max_tokens = st.slider("Max Tokens", min_value=10, max_value=1000,
+                                value=int(st_javascript("localStorage.getItem('max_tokens') || '50'")), step=10)
+    with st.expander("Max Tokens"):
+        st.markdown("""
+        "Max Tokens" is a parameter that controls the maximum number of tokens the model can generate in its response.
+        * A low value (e.g., 10) makes the output shorter and more concise.
+        * A high value (e.g., 100) makes it longer and more detailed.
+        The value ranges from 1 to 4096, with 50 being a common balanced setting.
+        """)
 
 tab1, tab2 = st.tabs(["OpenAI", "Grok"])
 tab1.write("OpenAI API Playground")
