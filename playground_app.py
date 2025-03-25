@@ -2,7 +2,7 @@ import streamlit as st
 from openai import OpenAI
 import requests
 
-st.title("AI API Playground")
+st.sidebar.title("AI API Playground")
 
 tab1, tab2 = st.tabs(["OpenAI", "Grok"])
 tab1.write("OpenAI API Playground")
@@ -15,8 +15,6 @@ with tab1:
     openai_user_prompt = st.text_area("OpenAI User Prompt", height=150)
     openai_model_options = ["gpt-3.5-turbo", "gpt-4", "gpt-4o"]
     openai_selected_model = st.selectbox("Select Model", openai_model_options)
-    openai_temperature = st.slider("OpenAI Temperature", min_value=0.0, max_value=2.0, value=0.3)
-    openai_max_tokens = st.slider("OpenAI Max Tokens", min_value=10, max_value=2048, value=300)
 
     if st.button("Send to OpenAI"):
         if not openai_api_key:
@@ -30,8 +28,8 @@ with tab1:
                         {"role": "system", "content": openai_system_prompt},
                         {"role": "user", "content": openai_user_prompt}
                     ],
-                    temperature=openai_temperature,
-                    max_tokens=openai_max_tokens
+                    temperature=temperature,
+                    max_tokens=max_tokens
                 )
                 st.subheader("Response:")
                 st.write(openai_response.choices[0].message.content)
@@ -43,7 +41,6 @@ with tab2:
     grok_api_key = st.text_input("Enter your Grok API Key", type="password")
     grok_system_prompt = st.text_area("Grok System Prompt", height=150)
     grok_user_prompt = st.text_area("Grok User Prompt", height=150)
-    grok_temperature = st.slider("Grok Temperature", min_value=0.0, max_value=2.0, value=0.3)
 
     if st.button("Send to Grok"):
         if not grok_api_key:
@@ -68,7 +65,7 @@ with tab2:
                         },
                     ],
                     "stream": False,
-                    "temperature": grok_temperature,
+                    "temperature": temperature,
                 }
                 grok_response = requests.post(
                     "https://api.x.ai/v1/chat/completions", headers=headers, json=data
@@ -87,16 +84,21 @@ st.sidebar.markdown("""
 2. Enter your API KEY
 3. Enter System Prompt
 4. Enter User Prompt
-5. Choose AI model (if any)
+5. Choose AI model, Temperature, Max Tokens (if any)
 6. Press Send
+""")
 
+temperature = st.sidebar.slider("Temperature", min_value=0.0, max_value=1.0, value=0.3, step=0.1)
+st.sidebar.markdown("""
 "Temperature" is a parameter that controls the randomness of the model’s responses.
-	•	A low value (e.g., 0.1) makes the output more focused and deterministic.
-	•	A high value (e.g., 1.0) makes it more creative and diverse, but less predictable.
+* A low value (e.g., 0.1) makes the output more focused and deterministic.
+* A high value (e.g., 1.0) makes it more creative and diverse, but less predictable.
 The value ranges from 0.0 to 2.0, with 0.7 being a common balanced setting.
-
+""")
+max_tokens = st.sidebar.slider("Max Tokens", min_value=1, max_value=1000, value=50, step=10)
+st.sidebar.markdown("""
 "Max Tokens" is a parameter that controls the maximum number of tokens the model can generate in its response.
-	•	A low value (e.g., 10) makes the output shorter and more concise.
-	•	A high value (e.g., 100) makes it longer and more detailed.
+* A low value (e.g., 10) makes the output shorter and more concise.
+* A high value (e.g., 100) makes it longer and more detailed.
 The value ranges from 1 to 4096, with 50 being a common balanced setting.
 """)
