@@ -47,6 +47,8 @@ with st.expander("", expanded=False):
     components.html(get_local_storage_js('grok_system_prompt', ""), height=0)
     components.html(get_local_storage_js('grok_user_prompt', ""), height=0)
 
+    if "max_tokens" not in st.session_state:
+        st.session_state.max_tokens = int(st_javascript("localStorage.getItem('max_tokens') || '50'"))
 
 st.sidebar.title("AI API Playground")
 
@@ -63,7 +65,7 @@ with st.sidebar:
         """)
 
     max_tokens = st.slider("Max Tokens", min_value=10, max_value=1000,
-                                value=int(st_javascript("localStorage.getItem('max_tokens') || '50'")), step=10)
+                                value=st.session_state.max_tokens, step=10)
     with st.expander("Max Tokens"):
         st.markdown("""
         "Max Tokens" is a parameter that controls the maximum number of tokens the model can generate in its response.
