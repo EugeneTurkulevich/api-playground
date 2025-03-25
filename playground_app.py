@@ -67,7 +67,7 @@ with st.sidebar:
         """)
 
     max_tokens = st.slider("Max Tokens", min_value=10, max_value=1000,
-                                value=int(st_javascript("localStorage.getItem('max_tokens') || '50'")), step=10)
+                                value=st.session_state.max_tokens, step=10)
     with st.expander("Max Tokens"):
         st.markdown("""
         "Max Tokens" is a parameter that controls the maximum number of tokens the model can generate in its response.
