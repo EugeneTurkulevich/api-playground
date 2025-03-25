@@ -47,12 +47,15 @@ with st.expander("", expanded=False):
     components.html(get_local_storage_js('grok_system_prompt', ""), height=0)
     components.html(get_local_storage_js('grok_user_prompt', ""), height=0)
 
+    if "temperature" not in st.session_state:
+        st.session_state.temperature = float(st_javascript("localStorage.getItem('temperature') || '0.3'"))
+
 st.sidebar.title("AI API Playground")
 
 with st.sidebar:
 
     temperature = st.slider("Temperature", min_value=0.0, max_value=1.0,
-                                    value=float(st_javascript("localStorage.getItem('temperature') || '0.3'")), step=0.1)
+                                    value=st.session_state.temperature, step=0.1)
     with st.expander("Temperature"):
         st.markdown("""
         "Temperature" is a parameter that controls the randomness of the model’s responses.
