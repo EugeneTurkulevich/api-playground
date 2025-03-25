@@ -49,6 +49,8 @@ with st.sidebar:
         components.html(get_local_storage_js('grok_system_prompt', ""), height=0)
         components.html(get_local_storage_js('grok_user_prompt', ""), height=0)
 
+        temperature_value = float(st_javascript("localStorage.getItem('temperature') || '0.3'"))
+
         openai_model_options = ["gpt-3.5-turbo", "gpt-4", "gpt-4o"]
         model_from_storage = st_javascript("localStorage.getItem('openai_model') || 'gpt-3.5-turbo'")
         try:
@@ -57,7 +59,7 @@ with st.sidebar:
             index_value = 0
 
     temperature = st.slider("Temperature", min_value=0.0, max_value=1.0,
-                                    value=float(st_javascript("localStorage.getItem('temperature') || '0.3'")), step=0.1)
+                                    value=temperature_value, step=0.1)
     with st.expander("Temperature"):
         st.markdown("""
         "Temperature" is a parameter that controls the randomness of the model’s responses.
@@ -87,12 +89,6 @@ with tab1:
         openai_api_key = st.text_input("Enter your OpenAI API Key", type="password",
             value=st_javascript("localStorage.getItem('openai_api_key') || ''"))
     with col2:
-        # openai_model_options = ["gpt-3.5-turbo", "gpt-4", "gpt-4o"]
-        # model_from_storage = st_javascript("localStorage.getItem('openai_model') || 'gpt-3.5-turbo'")
-        # try:
-        #     index_value = openai_model_options.index(model_from_storage)
-        # except (ValueError, TypeError):
-        #     index_value = 0
         openai_selected_model = st.selectbox("Select Model", openai_model_options, index=index_value)
 
     openai_system_prompt = st.text_area("OpenAI System Prompt", height=150,
