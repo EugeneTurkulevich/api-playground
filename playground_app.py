@@ -34,22 +34,20 @@ def set_local_storage_js(set_key, value_to_set):
     </script>
     """
 
-with st.expander("", expanded=False):
-    components.html(get_local_storage_js('temperature', "0.3"), height=0)
-    components.html(get_local_storage_js('max_tokens', "50"), height=0)
-
-    components.html(get_local_storage_js('openai_api_key', ""), height=0)
-    components.html(get_local_storage_js('openai_model', "gpt-3.5-turbo"), height=0)
-    components.html(get_local_storage_js('openai_system_prompt', ""), height=0)
-    components.html(get_local_storage_js('openai_user_prompt', ""), height=0)
-
-    components.html(get_local_storage_js('grok_api_key', ""), height=0)
-    components.html(get_local_storage_js('grok_system_prompt', ""), height=0)
-    components.html(get_local_storage_js('grok_user_prompt', ""), height=0)
-
-st.sidebar.title("AI API Playground")
-
 with st.sidebar:
+
+    with st.expander("AI API Playground", expanded=False):
+        components.html(get_local_storage_js('temperature', "0.3"), height=0)
+        components.html(get_local_storage_js('max_tokens', "50"), height=0)
+
+        components.html(get_local_storage_js('openai_api_key', ""), height=0)
+        components.html(get_local_storage_js('openai_model', "gpt-3.5-turbo"), height=0)
+        components.html(get_local_storage_js('openai_system_prompt', ""), height=0)
+        components.html(get_local_storage_js('openai_user_prompt', ""), height=0)
+
+        components.html(get_local_storage_js('grok_api_key', ""), height=0)
+        components.html(get_local_storage_js('grok_system_prompt', ""), height=0)
+        components.html(get_local_storage_js('grok_user_prompt', ""), height=0)
 
     temperature = st.slider("Temperature", min_value=0.0, max_value=1.0,
                                     value=float(st_javascript("localStorage.getItem('temperature') || '0.3'")), step=0.1)
