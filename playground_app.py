@@ -3,43 +3,47 @@ import streamlit.components.v1 as components
 from openai import OpenAI
 import requests
 
-def local_storage_js(element_id, default_value, element_type="slider"):
-    """
-    Generates JavaScript code to handle LocalStorage for various input elements.
-
-    Parameters:
-    - element_id: The HTML id for the element or Streamlit widget key.
-    - default_value: The default value to be used if no value is stored in LocalStorage.
-    - element_type: The type of the element, e.g., 'slider', 'text', etc.
-    """
+def get_local_storage_js(key, default):
+    """ Return JavaScript for retrieving values from LocalStorage. """
     return f"""
     <script>
         (function() {{
-            const storedValue = localStorage.getItem("{element_id}");
-            const defaultValue = {default_value}; // Default value as a JavaScript object (string/number)
-            const element = document.getElementById("{element_id}");
+            // Initialize with default value if not set
+            const storedValue = localStorage.getItem("{key}") || '{default}';
+            const returnValue = storedValue === 'null' ? '{default}' : storedValue;
+            const streamlitDoc = window.parent.document;
 
-            // Load stored value or use default
-            if (!storedValue) {{
-                localStorage.setItem("{element_id}", defaultValue);
-                element.value = defaultValue;
-            }} else {{
-                element.value = storedValue;
-                {'' if element_type == 'text' else f'{element_type}.value = parseFloat(storedValue);'}
-            }}
-
-            // Event listener for input change to update LocalStorage
-            element.addEventListener('input', function(e) {{
-                localStorage.setItem("{element_id}", e.target.value);
-            }});
+            // Send value to Streamlit
+            const input = streamlitDoc.createElement('input');
+            input.value = returnValue;
+            input.id = '{key}';
+            input.setAttribute('style', 'display:none;');
+            streamlitDoc.body.appendChild(input);
         }})();
     </script>
     """
 
+def set_local_storage_js(key, value):
+    """ Return JavaScript for setting values in LocalStorage. """
+    return f"""
+    <script>
+        localStorage.setItem("{key}", "{value}");
+    </script>
+    """
+
+def get_stored_value(key, default):
+    if key in st.session_state:
+        return st.session_state[key]
+    return default
+
+html = get_local_storage_js("temperature", 0.3)
+components.html(html, height=0)
+html = get_local_storage_js("max_tokens", 50)
+components.html(html, height=0)
+
 st.sidebar.title("AI API Playground")
 
-temperature = st.sidebar.slider("Temperature", min_value=0.0, max_value=1.0, value=0.3, step=0.1, key="temperature_slider")
-components.html(local_storage_js("temperature_slider", 0.3, "slider"), height=0)
+temperature = st.sidebar.slider("Temperature", min_value=0.0, max_value=1.0, value=get_stored_value('temperature', 0.3), step=0.1)
 st.sidebar.markdown("""
 "Temperature" is a parameter that controls the randomness of the model’s responses.
 * A low value (e.g., 0.1) makes the output more focused and deterministic.
@@ -47,7 +51,7 @@ st.sidebar.markdown("""
 The value ranges from 0.0 to 2.0, with 0.7 being a common balanced setting.
 """)
 
-max_tokens = st.sidebar.slider("Max Tokens", min_value=1, max_value=1000, value=50, step=10, key="max_tokens_slider")
+max_tokens = st.sidebar.slider("Max Tokens", min_value=1, max_value=1000, value=get_stored_value('max_tokens', '50'), step=10)
 components.html(local_storage_js("max_tokens_slider", 50), height=0)
 st.sidebar.markdown("""
 "Max Tokens" is a parameter that controls the maximum number of tokens the model can generate in its response.
@@ -73,6 +77,10 @@ with tab1:
     openai_user_prompt = st.text_area("OpenAI User Prompt", height=150)
 
     if st.button("Send to OpenAI"):
+        st.session_state['temperature'] = temperature
+        st.session_state['max_tokens'] = max_tokens
+        components.html(set_local_storage_js("temperature", temperature), height=0)
+        components.html(set_local_storage_js("max_tokens", max_tokens), height=0)
         if not openai_api_key:
             st.error("Please provide a valid API key.")
         else:
@@ -99,6 +107,10 @@ with tab2:
     grok_user_prompt = st.text_area("Grok User Prompt", height=150)
 
     if st.button("Send to Grok"):
+        st.session_state['temperature'] = temperature
+        st.session_state['max_tokens'] = max_tokens
+        components.html(set_local_storage_js("temperature", temperature), height=0)
+        components.html(set_local_storage_js("max_tokens", max_tokens), height=0)
         if not grok_api_key:
             st.error("Please provide a valid API key.")
         else:
