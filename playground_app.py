@@ -34,11 +34,15 @@ tab2.write("Grok API Playground")
 
 with tab1:
 
-    openai_api_key = st.text_input("Enter your OpenAI API Key", type="password")
+    col1, col2 = st.columns(2)
+    with col1:
+        openai_api_key = st.text_input("Enter your OpenAI API Key", type="password")
+    with col2:
+        openai_model_options = ["gpt-3.5-turbo", "gpt-4", "gpt-4o"]
+        openai_selected_model = st.selectbox("Select Model", openai_model_options)
+
     openai_system_prompt = st.text_area("OpenAI System Prompt", height=150)
     openai_user_prompt = st.text_area("OpenAI User Prompt", height=150)
-    openai_model_options = ["gpt-3.5-turbo", "gpt-4", "gpt-4o"]
-    openai_selected_model = st.selectbox("Select Model", openai_model_options)
 
     if st.button("Send to OpenAI"):
         if not openai_api_key:
