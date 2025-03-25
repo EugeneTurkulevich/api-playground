@@ -47,14 +47,10 @@ def get_stored_value(key, default_value, type_cast=int):
 components.html(get_local_storage_js('temperature', "0.3"), height=0)
 components.html(get_local_storage_js('max_tokens', "50"), height=0)
 
-value = st_javascript("localStorage.getItem('temperature') || '0.3'")
-st.write("Збережене значення:", value)
-# new_value = st.text_input("Введіть значення", value)
-
 st.sidebar.title("AI API Playground")
 
 temperature = st.sidebar.slider("Temperature", min_value=0.0, max_value=1.0,
-                                value=float(value), step=0.1)
+                                value=float(st_javascript("localStorage.getItem('temperature') || '0.3'")), step=0.1)
 st.sidebar.markdown("""
 "Temperature" is a parameter that controls the randomness of the model’s responses.
 * A low value (e.g., 0.1) makes the output more focused and deterministic.
@@ -63,7 +59,7 @@ The value ranges from 0.0 to 2.0, with 0.7 being a common balanced setting.
 """)
 
 max_tokens = st.sidebar.slider("Max Tokens", min_value=10, max_value=1000,
-                               value=get_stored_value('max_tokens', 50, int), step=10)
+                               value=int(st_javascript("localStorage.getItem('max_tokens') || '50'")), step=10)
 st.sidebar.markdown("""
 "Max Tokens" is a parameter that controls the maximum number of tokens the model can generate in its response.
 * A low value (e.g., 10) makes the output shorter and more concise.
