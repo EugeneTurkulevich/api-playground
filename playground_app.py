@@ -3,45 +3,48 @@ import streamlit.components.v1 as components
 from openai import OpenAI
 import requests
 
-def get_local_storage_js(key, default):
-    """ Return JavaScript for retrieving values from LocalStorage. """
+def get_local_storage_js(get_key, default_value):
+    """ Returns JavaScript to get a value from LocalStorage and inject into Streamlit. """
     return f"""
     <script>
         (function() {{
-            // Initialize with default value if not set
-            const storedValue = localStorage.getItem("{key}") || '{default}';
-            const returnValue = storedValue === 'null' ? '{default}' : storedValue;
-            const streamlitDoc = window.parent.document;
+            const valueInStorage = localStorage.getItem('{get_key}');
+            if (valueInStorage === null) {{
+                localStorage.setItem('{get_key}', '{default_value}');
+            }}
 
-            // Send value to Streamlit
-            const input = streamlitDoc.createElement('input');
-            input.value = returnValue;
-            input.id = '{key}';
-            input.setAttribute('style', 'display:none;');
-            streamlitDoc.body.appendChild(input);
+            // Retrieve the effective value from LocalStorage or default
+            const effectiveValue = localStorage.getItem('{get_key}') || '{default_value}';
+            const inputField = window.parent.document.createElement("input");
+            inputField.type = "text";
+            inputField.id = "return-{get_key}";
+            inputField.value = effectiveValue;
+            inputField.style.display = "none";
+            window.parent.document.body.appendChild(inputField);
         }})();
     </script>
     """
 
-def set_local_storage_js(key, value):
-    """ Return JavaScript for setting values in LocalStorage. """
+def set_local_storage_js(set_key, value_to_set):
+    """ Returns JavaScript for setting a value in LocalStorage. """
     return f"""
     <script>
-        localStorage.setItem("{key}", "{value}");
+        localStorage.setItem('{set_key}', '{value_to_set}');
     </script>
     """
 
-def get_stored_value(key, default, type_fn=int):
-    value = st.session_state.get(key, default)
+def get_stored_value(key, default_value, type_cast=int):
+    """ Helper function to get a stored value or a default. """
+    value = st.session_state.get(key, default_value)
     try:
-        return type_fn(value)
-    except ValueError:
-        return default
+        # Convert value to the specified type
+        return type_cast(value)
+    except (ValueError, TypeError):
+        # Return default if conversion fails
+        return default_value
 
-html = get_local_storage_js("temperature", 0.3)
-components.html(html, height=0)
-html = get_local_storage_js("max_tokens", 50)
-components.html(html, height=0)
+components.html(get_local_storage_js('temperature', "0.3"), height=0)
+components.html(get_local_storage_js('max_tokens', "50"), height=0)
 
 st.sidebar.title("AI API Playground")
 
@@ -54,7 +57,7 @@ st.sidebar.markdown("""
 The value ranges from 0.0 to 2.0, with 0.7 being a common balanced setting.
 """)
 
-max_tokens = st.sidebar.slider("Max Tokens", min_value=1, max_value=1000,
+max_tokens = st.sidebar.slider("Max Tokens", min_value=10, max_value=1000,
                                value=get_stored_value('max_tokens', 50, int), step=10)
 st.sidebar.markdown("""
 "Max Tokens" is a parameter that controls the maximum number of tokens the model can generate in its response.
