@@ -160,11 +160,11 @@ with tab2:
                 grok_response_text = grok_result["choices"][0]["message"]["content"]
                 container = st.container(border=True)
                 container.write(grok_response_text)
-        except Exception as e:
-            st.error(f"Error: {e}")
-            with st.expander("", expanded=False):
-                components.html(set_local_storage_js("temperature", temperature), height=0)
-                components.html(set_local_storage_js("max_tokens", max_tokens), height=0)
-                components.html(set_local_storage_js("grok_api_key", grok_api_key), height=0)
-                components.html(set_local_storage_js("grok_system_prompt", grok_system_prompt), height=0)
-                components.html(set_local_storage_js("grok_user_prompt", grok_user_prompt), height=0)
+            except Exception as e:
+                st.error(f"Error: {e}")
+        with st.expander("", expanded=False):
+            components.html(set_local_storage_js("temperature", temperature), height=0)
+            components.html(set_local_storage_js("max_tokens", max_tokens), height=0)
+            components.html(set_local_storage_js("grok_api_key", grok_api_key), height=0)
+            components.html(set_local_storage_js("grok_system_prompt", grok_system_prompt), height=0)
+            components.html(set_local_storage_js("grok_user_prompt", grok_user_prompt), height=0)
