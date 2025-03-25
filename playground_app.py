@@ -34,7 +34,7 @@ def set_local_storage_js(set_key, value_to_set):
     </script>
     """
 
-with st.expander("", expanded=False) as 'hidehere':
+with st.expander("", expanded=False):
     components.html(get_local_storage_js('temperature', "0.3"), height=0)
     components.html(get_local_storage_js('max_tokens', "50"), height=0)
 
@@ -92,13 +92,6 @@ with tab1:
         value=st_javascript("localStorage.getItem('openai_user_prompt') || ''"))
 
     if st.button("Send to OpenAI"):
-        with hidehere:
-            components.html(set_local_storage_js("temperature", temperature), height=0)
-            components.html(set_local_storage_js("max_tokens", max_tokens), height=0)
-            components.html(set_local_storage_js("openai_model", openai_selected_model), height=0)
-            components.html(set_local_storage_js("openai_system_prompt", openai_system_prompt), height=0)
-            components.html(set_local_storage_js("openai_user_prompt", openai_user_prompt), height=0)
-            components.html(set_local_storage_js("openai_api_key", openai_api_key), height=0)
         if not openai_api_key:
             st.error("Please provide a valid API key.")
         else:
@@ -117,18 +110,24 @@ with tab1:
                 container.write(openai_response.choices[0].message.content)
             except Exception as e:
                 st.error(f"Error: {e}")
+        with st.expander("", expanded=False):
+            components.html(set_local_storage_js("temperature", temperature), height=0)
+            components.html(set_local_storage_js("max_tokens", max_tokens), height=0)
+            components.html(set_local_storage_js("openai_api_key", openai_api_key), height=0)
+            components.html(set_local_storage_js("openai_model", openai_selected_model), height=0)
+            components.html(set_local_storage_js("openai_system_prompt", openai_system_prompt), height=0)
+            components.html(set_local_storage_js("openai_user_prompt", openai_user_prompt), height=0)
 
 with tab2:
 
-    grok_api_key = st.text_input("Enter your Grok API Key", type="password")
-    grok_system_prompt = st.text_area("Grok System Prompt", height=150)
-    grok_user_prompt = st.text_area("Grok User Prompt", height=150)
+    grok_api_key = st.text_input("Enter your Grok API Key", type="password",
+        value=st_javascript("localStorage.getItem('grok_api_key') || ''"))
+    grok_system_prompt = st.text_area("Grok System Prompt", height=150,
+        value=st_javascript("localStorage.getItem('grok_system_prompt') || ''"))
+    grok_user_prompt = st.text_area("Grok User Prompt", height=150,
+        value=st_javascript("localStorage.getItem('grok_user_prompt') || ''"))
 
     if st.button("Send to Grok"):
-        st.session_state['temperature'] = temperature
-        st.session_state['max_tokens'] = max_tokens
-        components.html(set_local_storage_js("temperature", temperature), height=0)
-        components.html(set_local_storage_js("max_tokens", max_tokens), height=0)
         if not grok_api_key:
             st.error("Please provide a valid API key.")
         else:
@@ -161,5 +160,11 @@ with tab2:
                 grok_response_text = grok_result["choices"][0]["message"]["content"]
                 container = st.container(border=True)
                 container.write(grok_response_text)
-            except Exception as e:
-                st.error(f"Error: {e}")
+        except Exception as e:
+            st.error(f"Error: {e}")
+            with st.expander("", expanded=False):
+                components.html(set_local_storage_js("temperature", temperature), height=0)
+                components.html(set_local_storage_js("max_tokens", max_tokens), height=0)
+                components.html(set_local_storage_js("grok_api_key", grok_api_key), height=0)
+                components.html(set_local_storage_js("grok_system_prompt", grok_system_prompt), height=0)
+                components.html(set_local_storage_js("grok_user_prompt", grok_user_prompt), height=0)
