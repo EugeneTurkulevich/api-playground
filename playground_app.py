@@ -41,7 +41,6 @@ with st.sidebar:
         components.html(get_local_storage_js('max_tokens', "50"), height=0)
 
         components.html(get_local_storage_js('openai_api_key', ""), height=0)
-        components.html(get_local_storage_js('openai_model', "gpt-3.5-turbo"), height=0)
         components.html(get_local_storage_js('openai_system_prompt', ""), height=0)
         components.html(get_local_storage_js('openai_user_prompt', ""), height=0)
 
@@ -81,8 +80,7 @@ with tab1:
             value=st_javascript("localStorage.getItem('openai_api_key') || ''"))
     with col2:
         openai_model_options = ["gpt-3.5-turbo", "gpt-4", "gpt-4o"]
-        openai_selected_model = st.selectbox("Select Model", openai_model_options,
-            index=0+openai_model_options.index(st_javascript("localStorage.getItem('openai_model') || 'gpt-3.5-turbo'")))
+        openai_selected_model = st.selectbox("Select Model", openai_model_options, index=1)
 
     openai_system_prompt = st.text_area("OpenAI System Prompt", height=150,
         value=st_javascript("localStorage.getItem('openai_system_prompt') || ''"))
@@ -112,7 +110,6 @@ with tab1:
             components.html(set_local_storage_js("temperature", temperature), height=0)
             components.html(set_local_storage_js("max_tokens", max_tokens), height=0)
             components.html(set_local_storage_js("openai_api_key", openai_api_key), height=0)
-            components.html(set_local_storage_js("openai_model", openai_selected_model), height=0)
             components.html(set_local_storage_js("openai_system_prompt", openai_system_prompt), height=0)
             components.html(set_local_storage_js("openai_user_prompt", openai_user_prompt), height=0)
 
