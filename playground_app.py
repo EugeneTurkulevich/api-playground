@@ -3,27 +3,34 @@ import streamlit.components.v1 as components
 from openai import OpenAI
 import requests
 
-def local_storage_slider(key, default_value):
-    # Return JavaScript that retrieves data from LocalStorage and sets the slider's value
+def local_storage_js(element_id, default_value, element_type="slider"):
+    """
+    Generates JavaScript code to handle LocalStorage for various input elements.
+
+    Parameters:
+    - element_id: The HTML id for the element or Streamlit widget key.
+    - default_value: The default value to be used if no value is stored in LocalStorage.
+    - element_type: The type of the element, e.g., 'slider', 'text', etc.
+    """
     return f"""
     <script>
         (function() {{
-            // Function to retrieve or set the default value in LocalStorage
-            const storedValue = localStorage.getItem("{key}");
-            const defaultValue = {default_value}; // Default value as a JavaScript number
-            const slider = document.getElementById("{key}");
+            const storedValue = localStorage.getItem("{element_id}");
+            const defaultValue = {default_value}; // Default value as a JavaScript object (string/number)
+            const element = document.getElementById("{element_id}");
 
-            // If no value in LocalStorage, set the default
+            // Load stored value or use default
             if (!storedValue) {{
-                localStorage.setItem("{key}", defaultValue.toString());
-                slider.value = defaultValue;
+                localStorage.setItem("{element_id}", defaultValue);
+                element.value = defaultValue;
             }} else {{
-                slider.value = storedValue;
+                element.value = storedValue;
+                {'' if element_type == 'text' else f'{element_type}.value = parseFloat(storedValue);'}
             }}
 
-            // Update LocalStorage whenever the slider value changes
-            slider.addEventListener('input', (e) => {{
-                localStorage.setItem("{key}", e.target.value);
+            // Event listener for input change to update LocalStorage
+            element.addEventListener('input', function(e) {{
+                localStorage.setItem("{element_id}", e.target.value);
             }});
         }})();
     </script>
@@ -32,7 +39,7 @@ def local_storage_slider(key, default_value):
 st.sidebar.title("AI API Playground")
 
 temperature = st.sidebar.slider("Temperature", min_value=0.0, max_value=1.0, value=0.3, step=0.1, key="temperature_slider")
-components.html(local_storage_slider("temperature_slider", 0.3), height=0)
+components.html(local_storage_js("temperature_slider", 0.3, "slider"), height=0)
 st.sidebar.markdown("""
 "Temperature" is a parameter that controls the randomness of the model’s responses.
 * A low value (e.g., 0.1) makes the output more focused and deterministic.
@@ -41,7 +48,7 @@ The value ranges from 0.0 to 2.0, with 0.7 being a common balanced setting.
 """)
 
 max_tokens = st.sidebar.slider("Max Tokens", min_value=1, max_value=1000, value=50, step=10, key="max_tokens_slider")
-components.html(local_storage_slider("max_tokens_slider", 50), height=0)
+components.html(local_storage_js("max_tokens_slider", 50), height=0)
 st.sidebar.markdown("""
 "Max Tokens" is a parameter that controls the maximum number of tokens the model can generate in its response.
 * A low value (e.g., 10) makes the output shorter and more concise.
