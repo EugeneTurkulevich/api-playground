@@ -47,8 +47,8 @@ with st.expander("", expanded=False):
     components.html(get_local_storage_js('grok_system_prompt', ""), height=0)
     components.html(get_local_storage_js('grok_user_prompt', ""), height=0)
 
-    if "max_tokens" not in st.session_state:
-        st.session_state.max_tokens = int(st_javascript("localStorage.getItem('max_tokens') || '50'"))
+    if "openai_api_key" not in st.session_state:
+        st.session_state.openai_api_key = st_javascript("localStorage.getItem('openai_api_key') || '50'")
 
 st.sidebar.title("AI API Playground")
 
@@ -65,7 +65,7 @@ with st.sidebar:
         """)
 
     max_tokens = st.slider("Max Tokens", min_value=10, max_value=1000,
-                                value=st.session_state.max_tokens, step=10)
+                                value=int(st_javascript("localStorage.getItem('max_tokens') || '50'")), step=10)
     with st.expander("Max Tokens"):
         st.markdown("""
         "Max Tokens" is a parameter that controls the maximum number of tokens the model can generate in its response.
@@ -83,7 +83,7 @@ with tab1:
     col1, col2 = st.columns(2)
     with col1:
         openai_api_key = st.text_input("Enter your OpenAI API Key", type="password",
-            value=st_javascript("localStorage.getItem('openai_api_key') || ''"))
+            value=st.session_state.openai_api_key)
     with col2:
         openai_model_options = ["gpt-3.5-turbo", "gpt-4", "gpt-4o"]
         openai_selected_model = st.selectbox("Select Model", openai_model_options,
