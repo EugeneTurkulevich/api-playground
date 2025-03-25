@@ -34,7 +34,7 @@ def set_local_storage_js(set_key, value_to_set):
     </script>
     """
 
-with st.expander("", expanded=False):
+with st.expander("", expanded=False) as 'hidehere':
     components.html(get_local_storage_js('temperature', "0.3"), height=0)
     components.html(get_local_storage_js('max_tokens', "50"), height=0)
 
@@ -92,12 +92,13 @@ with tab1:
         value=st_javascript("localStorage.getItem('openai_user_prompt') || ''"))
 
     if st.button("Send to OpenAI"):
-        components.html(set_local_storage_js("temperature", temperature), height=0)
-        components.html(set_local_storage_js("max_tokens", max_tokens), height=0)
-        components.html(set_local_storage_js("openai_model", openai_selected_model), height=0)
-        components.html(set_local_storage_js("openai_system_prompt", openai_system_prompt), height=0)
-        components.html(set_local_storage_js("openai_user_prompt", openai_user_prompt), height=0)
-        components.html(set_local_storage_js("openai_api_key", openai_api_key), height=0)
+        with hidehere:
+            components.html(set_local_storage_js("temperature", temperature), height=0)
+            components.html(set_local_storage_js("max_tokens", max_tokens), height=0)
+            components.html(set_local_storage_js("openai_model", openai_selected_model), height=0)
+            components.html(set_local_storage_js("openai_system_prompt", openai_system_prompt), height=0)
+            components.html(set_local_storage_js("openai_user_prompt", openai_user_prompt), height=0)
+            components.html(set_local_storage_js("openai_api_key", openai_api_key), height=0)
         if not openai_api_key:
             st.error("Please provide a valid API key.")
         else:
