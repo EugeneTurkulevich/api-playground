@@ -3,15 +3,15 @@ from openai import OpenAI
 import requests
 
 st.sidebar.title("AI API Playground")
-st.sidebar.markdown("""
-### HOW TO USE:
-1. Choose AI
-2. Enter your API KEY
-3. Enter System Prompt
-4. Enter User Prompt
-5. Choose AI model, Temperature, Max Tokens (if any)
-6. Press Send
-""")
+# st.sidebar.markdown("""
+# ### HOW TO USE:
+# 1. Choose AI
+# 2. Enter your API KEY
+# 3. Enter System Prompt
+# 4. Enter User Prompt
+# 5. Choose AI model, Temperature, Max Tokens (if any)
+# 6. Press Send
+# """)
 
 temperature = st.sidebar.slider("Temperature", min_value=0.0, max_value=1.0, value=0.3, step=0.1)
 st.sidebar.markdown("""
