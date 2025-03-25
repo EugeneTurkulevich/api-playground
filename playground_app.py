@@ -1,5 +1,6 @@
 import streamlit as st
 import streamlit.components.v1 as components
+from streamlit_javascript import st_javascript
 from openai import OpenAI
 import requests
 
@@ -45,6 +46,10 @@ def get_stored_value(key, default_value, type_cast=int):
 
 components.html(get_local_storage_js('temperature', "0.3"), height=0)
 components.html(get_local_storage_js('max_tokens', "50"), height=0)
+
+value = st_javascript("localStorage.getItem('temperature') || '0.3'")
+st.write("Збережене значення:", value)
+# new_value = st.text_input("Введіть значення", value)
 
 st.sidebar.title("AI API Playground")
 
