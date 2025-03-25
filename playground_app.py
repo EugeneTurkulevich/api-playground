@@ -59,8 +59,8 @@ with tab1:
                     temperature=temperature,
                     max_tokens=max_tokens
                 )
-                st.subheader("Response:")
-                st.write(openai_response.choices[0].message.content)
+                container = st.container(border=True)
+                container.write(openai_response.choices[0].message.content)
             except Exception as e:
                 st.error(f"Error: {e}")
 
@@ -101,7 +101,7 @@ with tab2:
                 grok_response.raise_for_status()
                 grok_result = grok_response.json()
                 grok_response_text = grok_result["choices"][0]["message"]["content"]
-                st.subheader("Response:")
-                st.write(grok_response_text)
+                container = st.container(border=True)
+                container.write(grok_response_text)
             except Exception as e:
                 st.error(f"Error: {e}")
