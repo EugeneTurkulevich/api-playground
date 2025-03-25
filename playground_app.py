@@ -63,6 +63,10 @@ with st.sidebar:
         grok_system_prompt_value = st_javascript("localStorage.getItem('grok_system_prompt') || ''")
         grok_user_prompt_value = st_javascript("localStorage.getItem('grok_user_prompt') || ''")
 
+        if grok_user_prompt_value is None:
+            st.info('loading...')
+            st.stop()
+
     temperature = st.slider("Temperature", min_value=0.0, max_value=1.0,
                                     value=temperature_value, step=0.1)
     with st.expander("Temperature"):
