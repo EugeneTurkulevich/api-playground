@@ -55,7 +55,7 @@ The value ranges from 0.0 to 2.0, with 0.7 being a common balanced setting.
 """)
 
 max_tokens = st.sidebar.slider("Max Tokens", min_value=1, max_value=1000,
-                               value=get_stored_value('max_tokens', 50, int), step=10)
+                               value=get_stored_value('max_tokens', 50, float), step=10)
 components.html(local_storage_js("max_tokens_slider", 50), height=0)
 st.sidebar.markdown("""
 "Max Tokens" is a parameter that controls the maximum number of tokens the model can generate in its response.
