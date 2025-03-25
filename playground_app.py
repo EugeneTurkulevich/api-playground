@@ -3,6 +3,30 @@ from openai import OpenAI
 import requests
 
 st.sidebar.title("AI API Playground")
+st.sidebar.markdown("""
+### HOW TO USE:
+1. Choose AI
+2. Enter your API KEY
+3. Enter System Prompt
+4. Enter User Prompt
+5. Choose AI model, Temperature, Max Tokens (if any)
+6. Press Send
+""")
+
+temperature = st.sidebar.slider("Temperature", min_value=0.0, max_value=1.0, value=0.3, step=0.1)
+st.sidebar.markdown("""
+"Temperature" is a parameter that controls the randomness of the model’s responses.
+* A low value (e.g., 0.1) makes the output more focused and deterministic.
+* A high value (e.g., 1.0) makes it more creative and diverse, but less predictable.
+The value ranges from 0.0 to 2.0, with 0.7 being a common balanced setting.
+""")
+max_tokens = st.sidebar.slider("Max Tokens", min_value=1, max_value=1000, value=50, step=10)
+st.sidebar.markdown("""
+"Max Tokens" is a parameter that controls the maximum number of tokens the model can generate in its response.
+* A low value (e.g., 10) makes the output shorter and more concise.
+* A high value (e.g., 100) makes it longer and more detailed.
+The value ranges from 1 to 4096, with 50 being a common balanced setting.
+""")
 
 tab1, tab2 = st.tabs(["OpenAI", "Grok"])
 tab1.write("OpenAI API Playground")
@@ -77,28 +101,3 @@ with tab2:
                 st.write(grok_response_text)
             except Exception as e:
                 st.error(f"Error: {e}")
-
-st.sidebar.markdown("""
-### HOW TO USE:
-1. Choose AI
-2. Enter your API KEY
-3. Enter System Prompt
-4. Enter User Prompt
-5. Choose AI model, Temperature, Max Tokens (if any)
-6. Press Send
-""")
-
-temperature = st.sidebar.slider("Temperature", min_value=0.0, max_value=1.0, value=0.3, step=0.1)
-st.sidebar.markdown("""
-"Temperature" is a parameter that controls the randomness of the model’s responses.
-* A low value (e.g., 0.1) makes the output more focused and deterministic.
-* A high value (e.g., 1.0) makes it more creative and diverse, but less predictable.
-The value ranges from 0.0 to 2.0, with 0.7 being a common balanced setting.
-""")
-max_tokens = st.sidebar.slider("Max Tokens", min_value=1, max_value=1000, value=50, step=10)
-st.sidebar.markdown("""
-"Max Tokens" is a parameter that controls the maximum number of tokens the model can generate in its response.
-* A low value (e.g., 10) makes the output shorter and more concise.
-* A high value (e.g., 100) makes it longer and more detailed.
-The value ranges from 1 to 4096, with 50 being a common balanced setting.
-""")
