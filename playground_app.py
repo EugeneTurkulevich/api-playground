@@ -54,7 +54,7 @@ st.write("Збережене значення:", value)
 st.sidebar.title("AI API Playground")
 
 temperature = st.sidebar.slider("Temperature", min_value=0.0, max_value=1.0,
-                                value=get_stored_value('temperature', 0.3, float), step=0.1)
+                                value=value, step=0.1)
 st.sidebar.markdown("""
 "Temperature" is a parameter that controls the randomness of the model’s responses.
 * A low value (e.g., 0.1) makes the output more focused and deterministic.
