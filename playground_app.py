@@ -34,18 +34,10 @@ def set_local_storage_js(set_key, value_to_set):
     </script>
     """
 
-# def get_stored_value(key, default_value, type_cast=int):
-#     """ Helper function to get a stored value or a default. """
-#     value = st.session_state.get(key, default_value)
-#     try:
-#         # Convert value to the specified type
-#         return type_cast(value)
-#     except (ValueError, TypeError):
-#         # Return default if conversion fails
-#         return default_value
-
 components.html(get_local_storage_js('temperature', "0.3"), height=0)
 components.html(get_local_storage_js('max_tokens', "50"), height=0)
+components.html(get_local_storage_js('openai_key', ""), height=0)
+components.html(get_local_storage_js('grok_key', ""), height=0)
 
 st.sidebar.title("AI API Playground")
 
@@ -84,12 +76,10 @@ with tab1:
     openai_user_prompt = st.text_area("OpenAI User Prompt", height=150)
 
     if st.button("Send to OpenAI"):
-        st.session_state['temperature'] = temperature
-        st.session_state['max_tokens'] = max_tokens
+        # st.session_state['temperature'] = temperature
+        # st.session_state['max_tokens'] = max_tokens
         components.html(set_local_storage_js("temperature", temperature), height=0)
         components.html(set_local_storage_js("max_tokens", max_tokens), height=0)
-        st.sidebar.write(f"Temperature: {temperature}")
-        st.sidebar.write(f"Max Tokens: {max_tokens}")
         if not openai_api_key:
             st.error("Please provide a valid API key.")
         else:
