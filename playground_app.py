@@ -71,7 +71,8 @@ with tab1:
 
     col1, col2 = st.columns(2)
     with col1:
-        openai_api_key = st.text_input("Enter your OpenAI API Key", type="password")
+        openai_api_key = st.text_input("Enter your OpenAI API Key", type="password",
+            value=st_javascript("localStorage.getItem('openai_api_key') || ''"))
     with col2:
         openai_model_options = ["gpt-3.5-turbo", "gpt-4", "gpt-4o"]
         openai_selected_model = st.selectbox("Select Model", openai_model_options,
