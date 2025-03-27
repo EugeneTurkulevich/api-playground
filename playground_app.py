@@ -2,6 +2,8 @@ import streamlit as st
 import streamlit.components.v1 as components
 from streamlit_javascript import st_javascript
 from openai import OpenAI
+from PIL import Image
+from io import BytesIO
 import requests
 
 def get_local_storage_js(get_key, default_value):
@@ -63,6 +65,11 @@ with st.sidebar:
         grok_system_prompt_value = st_javascript("localStorage.getItem('grok_system_prompt') || ''")
         grok_user_prompt_value = st_javascript("localStorage.getItem('grok_user_prompt') || ''")
 
+        components.html(get_local_storage_js('dalie_api_key', ""), height=0)
+        components.html(get_local_storage_js('dalie_prompt', ""), height=0)
+        dalie_api_key_value = st_javascript("localStorage.getItem('dalie_api_key') || ''")
+        dalie_prompt_value = st_javascript("localStorage.getItem('dalie_prompt') || ''")
+
     temperature = st.slider("Temperature", min_value=0.0, max_value=1.0, value=temperature_value, step=0.1)
     with st.expander("Temperature"):
         st.markdown("""
@@ -81,9 +88,10 @@ with st.sidebar:
         The value ranges from 1 to 4096, with 50 being a common balanced setting.
         """)
 
-tab1, tab2 = st.tabs(["OpenAI", "Grok"])
+tab1, tab2, tab3 = st.tabs(["OpenAI", "Grok", "Dall-e"])
 tab1.write("OpenAI API Playground")
 tab2.write("Grok API Playground")
+tab3.write("Dall-e API Playground")
 
 with tab1:
 
@@ -134,7 +142,7 @@ with tab2:
             st.error("Please provide a valid API key.")
         else:
             try:
-                api_url = "https://api.xai.com/grok"
+                api_url = "https://api.x.ai/v1/chat/completions"
                 headers = {
                     "Authorization": f"Bearer {grok_api_key}",
                     "Content-Type": "application/json"
@@ -155,7 +163,7 @@ with tab2:
                     "temperature": temperature,
                 }
                 grok_response = requests.post(
-                    "https://api.x.ai/v1/chat/completions", headers=headers, json=data
+                    api_url, headers=headers, json=data
                 )
                 grok_response.raise_for_status()
                 grok_result = grok_response.json()
@@ -170,3 +178,56 @@ with tab2:
             components.html(set_local_storage_js("grok_api_key", grok_api_key), height=0)
             components.html(set_local_storage_js("grok_system_prompt", grok_system_prompt), height=0)
             components.html(set_local_storage_js("grok_user_prompt", grok_user_prompt), height=0)
+
+with tab3:
+
+    dalie_api_key = st.text_input("Enter your Dali-e API Key", type="password", value=dalie_api_key_value)
+    dalie_prompt = st.text_area("Dali-e Prompt", height=150, value=dalie_prompt_value)
+    resize_factor = st.slider("Resize Factor (%)", min_value=10, max_value=100, value=50, step=10)
+
+    if st.button("Send to Dali-e"):
+        if not dalie_api_key:
+            st.error("Please provide a valid API key.")
+        else:
+            with st.spinner("Generating image..."):
+                api_url = "https://api.openai.com/v1/images/generations"
+                headers = {
+                    "Authorization": f"Bearer {dalie_api_key}",
+                    "Content-Type": "application/json"
+                }
+                data = {
+                    "model": "dall-e-3",
+                    "prompt": dalie_prompt,
+                    "n": 1,
+                    "size": "1024x1024"
+                }
+                try:
+                    dalie_response = requests.post(
+                        api_url, headers=headers, json=data
+                    )
+                    dalie_response.raise_for_status()
+                    dalie_result = dalie_response.json()
+                    image_url = dalie_result["data"][0]["url"]
+                    # st.image(image_url)
+                    response = requests.get(image_url)
+                    img = Image.open(BytesIO(response.content))
+                    width, height = img.size
+                    new_width = int(width * resize_factor / 100)
+                    new_height = int(height * resize_factor / 100)
+                    resized_img = img.resize((new_width, new_height), Image.LANCZOS)
+                    st.image(resized_img, caption="Generated Image")
+                    buf = BytesIO()
+                    img.save(buf, format="PNG")
+                    byte_im = buf.getvalue()
+                    st.download_button(
+                        label="Download Image",
+                        data=byte_im,
+                        file_name="dalle_generated_image.png",
+                        mime="image/png"
+                    )
+                    st.success("Image generated successfully!")
+                except Exception as e:
+                    st.error(f"Error generating image: {e}")
+        with st.expander("", expanded=False):
+            components.html(set_local_storage_js("dalie_api_key", dalie_api_key), height=0)
+            components.html(set_local_storage_js("dalie_prompt", dalie_prompt), height=0)
