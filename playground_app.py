@@ -258,4 +258,5 @@ with tab3:
                     st.error(f"Error generating image: {e}")
         with st.expander("", expanded=False):
             components.html(set_local_storage_js("dalle_api_key", dalle_api_key), height=0)
+            components.html(set_local_storage_js("dalle_model", dalle_selected_model), height=0)
             components.html(set_local_storage_js("dalle_prompt", dalle_prompt), height=0)
