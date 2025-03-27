@@ -66,17 +66,9 @@ with st.sidebar:
         grok_user_prompt_value = st_javascript("localStorage.getItem('grok_user_prompt') || ''")
 
         components.html(get_local_storage_js('dalle_api_key', ""), height=0)
-        components.html(get_local_storage_js('dalle_model', "dall-e-3"), height=0)
-        components.html(get_local_storage_js('dalle_prompt', ""), height=0)
         dalle_api_key_value = st_javascript("localStorage.getItem('dalle_api_key') || ''")
-        dalle_model_options = ["dall-e-2", "dall-e-3"]
-        dalle_model_from_storage = st_javascript("localStorage.getItem('dalle_model') || 'dall-e-3'")
-        try:
-            dalle_model_index_value = dalle_model_options.index(dalle_model_from_storage)
-        except (ValueError, TypeError):
-            dalle_model_index_value = 0
+        dalle_model_options = ["dall-e-3", "dall-e-2"]
         dalle_style_options = ["vivid", "natural"]
-        dalle_prompt_value = st_javascript("localStorage.getItem('dalle_prompt') || ''")
 
     temperature = st.slider("Temperature", min_value=0.0, max_value=1.0, value=temperature_value, step=0.1)
     with st.expander("Temperature"):
@@ -193,19 +185,16 @@ with tab3:
     with col1:
         dalle_api_key = st.text_input("Enter your Dall-e API Key", type="password", value=dalle_api_key_value)
     with col2:
-        dalle_selected_model = st.selectbox("Dall-e Model", dalle_model_options, index=dalle_model_index_value)
+        dalle_selected_model = st.selectbox("Dall-e Model", dalle_model_options)
         if dalle_selected_model == "dall-e-3":
             dalle_style = st.selectbox("Dall-e Style", dalle_style_options)
+            resize_factor_value = 50
         else:
             dalle_style = None
+            resize_factor_value = 100
 
-    resize_factor_values = {
-        "dall-e-2": 100,
-        "dall-e-3": 50,
-    }
-    default_resize_value = resize_factor_values.get(dalle_selected_model, 70)
-    dalle_prompt = st.text_area("Dall-e Prompt", height=150, value=dalle_prompt_value)
-    resize_factor = st.slider("Resize Factor (%)", min_value=10, max_value=100, value=default_resize_value, step=10)
+    dalle_prompt = st.text_area("Dall-e Prompt", height=150)
+    resize_factor = st.slider("Resize Factor (%)", min_value=10, max_value=100, value=resize_factor_value, step=10)
 
     if st.button("Send to Dall-e"):
         if not dalle_api_key:
@@ -258,5 +247,3 @@ with tab3:
                     st.error(f"Error generating image: {e}")
         with st.expander("", expanded=False):
             components.html(set_local_storage_js("dalle_api_key", dalle_api_key), height=0)
-            components.html(set_local_storage_js("dalle_model", dalle_selected_model), height=0)
-            components.html(set_local_storage_js("dalle_prompt", dalle_prompt), height=0)
