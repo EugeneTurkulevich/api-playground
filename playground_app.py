@@ -50,11 +50,11 @@ with st.sidebar:
         components.html(get_local_storage_js('openai_user_prompt', ""), height=0)
         openai_api_key_value = st_javascript("localStorage.getItem('openai_api_key') || ''")
         openai_model_options = ["gpt-3.5-turbo", "gpt-4", "gpt-4o"]
-        model_from_storage = st_javascript("localStorage.getItem('openai_model') || 'gpt-3.5-turbo'")
+        openai_model_from_storage = st_javascript("localStorage.getItem('openai_model') || 'gpt-3.5-turbo'")
         try:
-            model_index_value = openai_model_options.index(model_from_storage)
+            openai_model_index_value = openai_model_options.index(openai_model_from_storage)
         except (ValueError, TypeError):
-            model_index_value = 0
+            openai_model_index_value = 0
         openai_system_prompt_value = st_javascript("localStorage.getItem('openai_system_prompt') || ''")
         openai_user_prompt_value = st_javascript("localStorage.getItem('openai_user_prompt') || ''")
 
@@ -65,10 +65,18 @@ with st.sidebar:
         grok_system_prompt_value = st_javascript("localStorage.getItem('grok_system_prompt') || ''")
         grok_user_prompt_value = st_javascript("localStorage.getItem('grok_user_prompt') || ''")
 
-        components.html(get_local_storage_js('dalie_api_key', ""), height=0)
-        components.html(get_local_storage_js('dalie_prompt', ""), height=0)
-        dalie_api_key_value = st_javascript("localStorage.getItem('dalie_api_key') || ''")
-        dalie_prompt_value = st_javascript("localStorage.getItem('dalie_prompt') || ''")
+        components.html(get_local_storage_js('dalle_api_key', ""), height=0)
+        components.html(get_local_storage_js('dalle_model', "dall-e-3"), height=0)
+        components.html(get_local_storage_js('dalle_prompt', ""), height=0)
+        dalle_api_key_value = st_javascript("localStorage.getItem('dalle_api_key') || ''")
+        dalle_model_options = ["dall-e-2", "dall-e-3"]
+        dalle_model_from_storage = st_javascript("localStorage.getItem('dalle_model') || 'dall-e-3'")
+        try:
+            dalle_model_index_value = dalle_model_options.index(dalle_model_from_storage)
+        except (ValueError, TypeError):
+            dalle_model_index_value = 0
+        dalle_style_options = ["vivid", "natural"]
+        dalle_prompt_value = st_javascript("localStorage.getItem('dalle_prompt') || ''")
 
     temperature = st.slider("Temperature", min_value=0.0, max_value=1.0, value=temperature_value, step=0.1)
     with st.expander("Temperature"):
@@ -99,7 +107,7 @@ with tab1:
     with col1:
         openai_api_key = st.text_input("Enter your OpenAI API Key", type="password", value=openai_api_key_value)
     with col2:
-        openai_selected_model = st.selectbox("Select Model", openai_model_options, index=model_index_value)
+        openai_selected_model = st.selectbox("OpenAI Model", openai_model_options, index=openai_model_index_value)
 
     openai_system_prompt = st.text_area("OpenAI System Prompt", height=150, value=openai_system_prompt_value)
     openai_user_prompt = st.text_area("OpenAI User Prompt", height=150, value=openai_user_prompt_value)
@@ -181,33 +189,53 @@ with tab2:
 
 with tab3:
 
-    dalie_api_key = st.text_input("Enter your Dali-e API Key", type="password", value=dalie_api_key_value)
-    dalie_prompt = st.text_area("Dali-e Prompt", height=150, value=dalie_prompt_value)
-    resize_factor = st.slider("Resize Factor (%)", min_value=10, max_value=100, value=50, step=10)
+    col1, col2 = st.columns(2)
+    with col1:
+        dalle_api_key = st.text_input("Enter your Dall-e API Key", type="password", value=dalle_api_key_value)
+    with col2:
+        dalle_selected_model = st.selectbox("Dall-e Model", dalle_model_options, index=dalle_model_index_value)
+        if dalle_selected_model == "dall-e-3":
+            dalle_style = st.selectbox("Dall-e Style", dalle_style_options)
+        else:
+            dalle_style = None
 
-    if st.button("Send to Dali-e"):
-        if not dalie_api_key:
+    resize_factor_values = {
+        "dall-e-2": 100,
+        "dall-e-3": 50,
+    }
+    default_resize_value = resize_factor_values.get(dalle_selected_model, 70)
+    dalle_prompt = st.text_area("Dall-e Prompt", height=150, value=dalle_prompt_value)
+    resize_factor = st.slider("Resize Factor (%)", min_value=10, max_value=100, value=default_resize_value, step=10)
+
+    if st.button("Send to Dall-e"):
+        if not dalle_api_key:
             st.error("Please provide a valid API key.")
         else:
             with st.spinner("Generating image..."):
                 api_url = "https://api.openai.com/v1/images/generations"
+                if dalle_selected_model == "dall-e-2":
+                    image_size = "512x512"
+                elif dalle_selected_model == "dall-e-3":
+                    image_size = "1024x1024"
                 headers = {
-                    "Authorization": f"Bearer {dalie_api_key}",
+                    "Authorization": f"Bearer {dalle_api_key}",
                     "Content-Type": "application/json"
                 }
                 data = {
-                    "model": "dall-e-3",
-                    "prompt": dalie_prompt,
+                    "model": dalle_selected_model,
+                    "prompt": dalle_prompt,
                     "n": 1,
-                    "size": "1024x1024"
+                    "size": image_size
                 }
+                if dalle_style:
+                    data["style"] = dalle_style
                 try:
-                    dalie_response = requests.post(
+                    dalle_response = requests.post(
                         api_url, headers=headers, json=data
                     )
-                    dalie_response.raise_for_status()
-                    dalie_result = dalie_response.json()
-                    image_url = dalie_result["data"][0]["url"]
+                    dalle_response.raise_for_status()
+                    dalle_result = dalle_response.json()
+                    image_url = dalle_result["data"][0]["url"]
                     # st.image(image_url)
                     response = requests.get(image_url)
                     img = Image.open(BytesIO(response.content))
@@ -229,5 +257,5 @@ with tab3:
                 except Exception as e:
                     st.error(f"Error generating image: {e}")
         with st.expander("", expanded=False):
-            components.html(set_local_storage_js("dalie_api_key", dalie_api_key), height=0)
-            components.html(set_local_storage_js("dalie_prompt", dalie_prompt), height=0)
+            components.html(set_local_storage_js("dalle_api_key", dalle_api_key), height=0)
+            components.html(set_local_storage_js("dalle_prompt", dalle_prompt), height=0)
