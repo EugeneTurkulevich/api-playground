@@ -158,69 +158,71 @@ with tab2:
 
 with tab3:
 
-    col1, col2, col3 = st.columns(3)
-    with col1:
-        dalle_api_key = st.text_input("Enter your Dall-e API Key", type="password", value=dalle_api_key_value)
-    with col2:
-        dalle_selected_model = st.selectbox("Dall-e Model", dalle_model_options)
-    with col3:
-        if dalle_selected_model == "dall-e-3":
-            dalle_style = st.selectbox("Dall-e Style", dalle_style_options)
-            resize_factor_value = 50
-        else:
-            dalle_style = None
-            resize_factor_value = 100
+    topcol1, topcol2 = st.columns(2)
+    with topcol1:
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            dalle_api_key = st.text_input("Enter your Dall-e API Key", type="password", value=dalle_api_key_value)
+        with col2:
+            dalle_selected_model = st.selectbox("Dall-e Model", dalle_model_options)
+        with col3:
+            if dalle_selected_model == "dall-e-3":
+                dalle_style = st.selectbox("Dall-e Style", dalle_style_options)
+                resize_factor_value = 50
+            else:
+                dalle_style = None
+                resize_factor_value = 100
 
-    dalle_prompt = st.text_area("Dall-e Prompt", height=150)
-    resize_factor = st.slider("Resize Factor (%)", min_value=10, max_value=100, value=resize_factor_value, step=10)
+        dalle_prompt = st.text_area("Dall-e Prompt", height=150)
+        resize_factor = st.slider("Resize Factor (%)", min_value=10, max_value=100, value=resize_factor_value, step=10)
 
     if st.button("Send to Dall-e"):
         if not dalle_api_key:
             st.error("Please provide a valid API key.")
         else:
-            with st.spinner("Generating image..."):
-                api_url = "https://api.openai.com/v1/images/generations"
-                if dalle_selected_model == "dall-e-2":
-                    image_size = "512x512"
-                elif dalle_selected_model == "dall-e-3":
-                    image_size = "1024x1024"
-                headers = {
-                    "Authorization": f"Bearer {dalle_api_key}",
-                    "Content-Type": "application/json"
-                }
-                data = {
-                    "model": dalle_selected_model,
-                    "prompt": dalle_prompt,
-                    "n": 1,
-                    "size": image_size
-                }
-                if dalle_style:
-                    data["style"] = dalle_style
-                try:
-                    dalle_response = requests.post(
-                        api_url, headers=headers, json=data
-                    )
-                    dalle_response.raise_for_status()
-                    dalle_result = dalle_response.json()
-                    image_url = dalle_result["data"][0]["url"]
-                    # st.image(image_url)
-                    response = requests.get(image_url)
-                    img = Image.open(BytesIO(response.content))
-                    width, height = img.size
-                    new_width = int(width * resize_factor / 100)
-                    new_height = int(height * resize_factor / 100)
-                    resized_img = img.resize((new_width, new_height), Image.LANCZOS)
-                    st.image(resized_img, caption="Generated Image")
-                    buf = BytesIO()
-                    img.save(buf, format="PNG")
-                    byte_im = buf.getvalue()
-                    st.download_button(
-                        label="Download Image",
-                        data=byte_im,
-                        file_name="dalle_generated_image.png",
-                        mime="image/png"
-                    )
-                except Exception as e:
-                    st.error(f"Error generating image: {e}")
+            with topcol2:
+                with st.spinner("Generating image..."):
+                    api_url = "https://api.openai.com/v1/images/generations"
+                    if dalle_selected_model == "dall-e-2":
+                        image_size = "512x512"
+                    elif dalle_selected_model == "dall-e-3":
+                        image_size = "1024x1024"
+                    headers = {
+                        "Authorization": f"Bearer {dalle_api_key}",
+                        "Content-Type": "application/json"
+                    }
+                    data = {
+                        "model": dalle_selected_model,
+                        "prompt": dalle_prompt,
+                        "n": 1,
+                        "size": image_size
+                    }
+                    if dalle_style:
+                        data["style"] = dalle_style
+                    try:
+                        dalle_response = requests.post(
+                            api_url, headers=headers, json=data
+                        )
+                        dalle_response.raise_for_status()
+                        dalle_result = dalle_response.json()
+                        image_url = dalle_result["data"][0]["url"]
+                        response = requests.get(image_url)
+                        img = Image.open(BytesIO(response.content))
+                        width, height = img.size
+                        new_width = int(width * resize_factor / 100)
+                        new_height = int(height * resize_factor / 100)
+                        resized_img = img.resize((new_width, new_height), Image.LANCZOS)
+                        st.image(resized_img, caption="Generated Image")
+                        buf = BytesIO()
+                        img.save(buf, format="PNG")
+                        byte_im = buf.getvalue()
+                        st.download_button(
+                            label="Download Image",
+                            data=byte_im,
+                            file_name="dalle_generated_image.png",
+                            mime="image/png"
+                        )
+                    except Exception as e:
+                        st.error(f"Error generating image: {e}")
         with st.sidebar.expander("", expanded=False):
             components.html(set_local_storage_js("dalle_api_key", dalle_api_key), height=0)
