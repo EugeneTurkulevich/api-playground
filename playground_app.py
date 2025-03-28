@@ -6,6 +6,11 @@ from PIL import Image
 from io import BytesIO
 import requests
 
+st.set_page_config(
+    layout="wide",
+    initial_sidebar_state="collapsed"
+)
+
 def get_local_storage_js(get_key, default_value):
     """ Returns JavaScript to get a value from LocalStorage and inject into Streamlit. """
     return f"""
@@ -39,54 +44,23 @@ def set_local_storage_js(set_key, value_to_set):
 with st.sidebar:
 
     with st.expander("AI API Playground", expanded=False):
-        components.html(get_local_storage_js('temperature', "0.3"), height=0)
-        components.html(get_local_storage_js('max_tokens', "50"), height=0)
-        temperature_value = float(st_javascript("localStorage.getItem('temperature') || '0.3'"))
-        max_tokens_value = int(st_javascript("localStorage.getItem('max_tokens') || '50'"))
-
         components.html(get_local_storage_js('openai_api_key', ""), height=0)
-        components.html(get_local_storage_js('openai_model', "gpt-3.5-turbo"), height=0)
-        components.html(get_local_storage_js('openai_system_prompt', ""), height=0)
-        components.html(get_local_storage_js('openai_user_prompt', ""), height=0)
+        components.html(get_local_storage_js('openai_temperature', "0.3"), height=0)
+        components.html(get_local_storage_js('openai_max_tokens', "50"), height=0)
         openai_api_key_value = st_javascript("localStorage.getItem('openai_api_key') || ''")
-        openai_model_options = ["gpt-3.5-turbo", "gpt-4", "gpt-4o"]
-        openai_model_from_storage = st_javascript("localStorage.getItem('openai_model') || 'gpt-3.5-turbo'")
-        try:
-            openai_model_index_value = openai_model_options.index(openai_model_from_storage)
-        except (ValueError, TypeError):
-            openai_model_index_value = 0
-        openai_system_prompt_value = st_javascript("localStorage.getItem('openai_system_prompt') || ''")
-        openai_user_prompt_value = st_javascript("localStorage.getItem('openai_user_prompt') || ''")
+        openai_model_options = ["gpt-4", "gpt-4o", "gpt-3.5-turbo"]
+        openai_temperature_value = float(st_javascript("localStorage.getItem('openai_temperature') || '0.3'"))
+        openai_max_tokens_value = int(st_javascript("localStorage.getItem('openai_max_tokens') || '50'"))
 
         components.html(get_local_storage_js('grok_api_key', ""), height=0)
-        components.html(get_local_storage_js('grok_system_prompt', ""), height=0)
-        components.html(get_local_storage_js('grok_user_prompt', ""), height=0)
+        components.html(get_local_storage_js('grok_temperature', "0.3"), height=0)
         grok_api_key_value = st_javascript("localStorage.getItem('grok_api_key') || ''")
-        grok_system_prompt_value = st_javascript("localStorage.getItem('grok_system_prompt') || ''")
-        grok_user_prompt_value = st_javascript("localStorage.getItem('grok_user_prompt') || ''")
+        grok_temperature_value = float(st_javascript("localStorage.getItem('grok_temperature') || '0.3'"))
 
         components.html(get_local_storage_js('dalle_api_key', ""), height=0)
         dalle_api_key_value = st_javascript("localStorage.getItem('dalle_api_key') || ''")
         dalle_model_options = ["dall-e-3", "dall-e-2"]
         dalle_style_options = ["vivid", "natural"]
-
-    temperature = st.slider("Temperature", min_value=0.0, max_value=1.0, value=temperature_value, step=0.1)
-    with st.expander("Temperature"):
-        st.markdown("""
-        "Temperature" is a parameter that controls the randomness of the model’s responses.
-        * A low value (e.g., 0.1) makes the output more focused and deterministic.
-        * A high value (e.g., 1.0) makes it more creative and diverse, but less predictable.
-        The value ranges from 0.0 to 2.0, with 0.7 being a common balanced setting.
-        """)
-
-    max_tokens = st.slider("Max Tokens", min_value=10, max_value=1000, value=max_tokens_value, step=10)
-    with st.expander("Max Tokens"):
-        st.markdown("""
-        "Max Tokens" is a parameter that controls the maximum number of tokens the model can generate in its response.
-        * A low value (e.g., 10) makes the output shorter and more concise.
-        * A high value (e.g., 100) makes it longer and more detailed.
-        The value ranges from 1 to 4096, with 50 being a common balanced setting.
-        """)
 
 tab1, tab2, tab3 = st.tabs(["OpenAI", "Grok", "Dall-e"])
 tab1.write("OpenAI API Playground")
@@ -95,14 +69,18 @@ tab3.write("Dall-e API Playground")
 
 with tab1:
 
-    col1, col2 = st.columns(2)
+    col1, col2, col3, col4 = st.columns(4)
     with col1:
         openai_api_key = st.text_input("Enter your OpenAI API Key", type="password", value=openai_api_key_value)
     with col2:
-        openai_selected_model = st.selectbox("OpenAI Model", openai_model_options, index=openai_model_index_value)
+        openai_selected_model = st.selectbox("OpenAI Model", openai_model_options)
+    with col3:
+        openai_temperature = st.slider("OpenAI Temperature", min_value=0.0, max_value=1.0, value=openai_temperature_value, step=0.1)
+    with col4:
+        openai_max_tokens = st.slider("OpenAIMax Tokens", min_value=10, max_value=1000, value=openai_max_tokens_value, step=10)
 
-    openai_system_prompt = st.text_area("OpenAI System Prompt", height=150, value=openai_system_prompt_value)
-    openai_user_prompt = st.text_area("OpenAI User Prompt", height=150, value=openai_user_prompt_value)
+    openai_system_prompt = st.text_area("OpenAI System Prompt", height=150)
+    openai_user_prompt = st.text_area("OpenAI User Prompt", height=150)
 
     if st.button("Send to OpenAI"):
         if not openai_api_key:
@@ -116,26 +94,28 @@ with tab1:
                         {"role": "system", "content": openai_system_prompt},
                         {"role": "user", "content": openai_user_prompt}
                     ],
-                    temperature=temperature,
-                    max_tokens=max_tokens
+                    temperature=openai_temperature,
+                    max_tokens=openai_max_tokens
                 )
                 container = st.container(border=True)
                 container.write(openai_response.choices[0].message.content)
             except Exception as e:
                 st.error(f"Error: {e}")
-        with st.expander("", expanded=False):
-            components.html(set_local_storage_js("temperature", temperature), height=0)
-            components.html(set_local_storage_js("max_tokens", max_tokens), height=0)
+        with st.sidebar.expander("", expanded=False):
             components.html(set_local_storage_js("openai_api_key", openai_api_key), height=0)
-            components.html(set_local_storage_js("openai_model", openai_selected_model), height=0)
-            components.html(set_local_storage_js("openai_system_prompt", openai_system_prompt), height=0)
-            components.html(set_local_storage_js("openai_user_prompt", openai_user_prompt), height=0)
+            components.html(set_local_storage_js("temperature", openai_temperature), height=0)
+            components.html(set_local_storage_js("max_tokens", openai_max_tokens), height=0)
 
 with tab2:
 
-    grok_api_key = st.text_input("Enter your Grok API Key", type="password", value=grok_api_key_value)
-    grok_system_prompt = st.text_area("Grok System Prompt", height=150, value=grok_system_prompt_value)
-    grok_user_prompt = st.text_area("Grok User Prompt", height=150, value=grok_user_prompt_value)
+    col1, col2 = st.columns(2)
+    with col1:
+        grok_api_key = st.text_input("Enter your Grok API Key", type="password", value=grok_api_key_value)
+    with col2:
+        grok_temperature = st.slider("Grok Temperature", min_value=0.0, max_value=2.0, value=grok_temperature_value, step=0.1)
+
+    grok_system_prompt = st.text_area("Grok System Prompt", height=150)
+    grok_user_prompt = st.text_area("Grok User Prompt", height=150)
 
     if st.button("Send to Grok"):
         if not grok_api_key:
@@ -160,7 +140,7 @@ with tab2:
                         },
                     ],
                     "stream": False,
-                    "temperature": temperature,
+                    "temperature": grok_temperature,
                 }
                 grok_response = requests.post(
                     api_url, headers=headers, json=data
@@ -172,20 +152,18 @@ with tab2:
                 container.write(grok_response_text)
             except Exception as e:
                 st.error(f"Error: {e}")
-        with st.expander("", expanded=False):
-            components.html(set_local_storage_js("temperature", temperature), height=0)
-            components.html(set_local_storage_js("max_tokens", max_tokens), height=0)
+        with st.sidebar.expander("", expanded=False):
             components.html(set_local_storage_js("grok_api_key", grok_api_key), height=0)
-            components.html(set_local_storage_js("grok_system_prompt", grok_system_prompt), height=0)
-            components.html(set_local_storage_js("grok_user_prompt", grok_user_prompt), height=0)
+            components.html(set_local_storage_js("grok_temperature", temperature), height=0)
 
 with tab3:
 
-    col1, col2 = st.columns(2)
+    col1, col2, col3 = st.columns(3)
     with col1:
         dalle_api_key = st.text_input("Enter your Dall-e API Key", type="password", value=dalle_api_key_value)
     with col2:
         dalle_selected_model = st.selectbox("Dall-e Model", dalle_model_options)
+    with col3:
         if dalle_selected_model == "dall-e-3":
             dalle_style = st.selectbox("Dall-e Style", dalle_style_options)
             resize_factor_value = 50
@@ -242,8 +220,7 @@ with tab3:
                         file_name="dalle_generated_image.png",
                         mime="image/png"
                     )
-                    st.success("Image generated successfully!")
                 except Exception as e:
                     st.error(f"Error generating image: {e}")
-        with st.expander("", expanded=False):
+        with st.sidebar.expander("", expanded=False):
             components.html(set_local_storage_js("dalle_api_key", dalle_api_key), height=0)
