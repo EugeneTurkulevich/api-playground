@@ -86,21 +86,22 @@ with tab1:
         if not openai_api_key:
             st.error("Please provide a valid API key.")
         else:
-            try:
-                client = OpenAI(api_key=openai_api_key)
-                openai_response = client.chat.completions.create(
-                    model=openai_selected_model,
-                    messages=[
-                        {"role": "system", "content": openai_system_prompt},
-                        {"role": "user", "content": openai_user_prompt}
-                    ],
-                    temperature=openai_temperature,
-                    max_tokens=openai_max_tokens
-                )
-                container = st.container(border=True)
-                container.write(openai_response.choices[0].message.content)
-            except Exception as e:
-                st.error(f"Error: {e}")
+            with st.spinner("Generating response..."):
+                try:
+                    client = OpenAI(api_key=openai_api_key)
+                    openai_response = client.chat.completions.create(
+                        model=openai_selected_model,
+                        messages=[
+                            {"role": "system", "content": openai_system_prompt},
+                            {"role": "user", "content": openai_user_prompt}
+                        ],
+                        temperature=openai_temperature,
+                        max_tokens=openai_max_tokens
+                    )
+                    container = st.container(border=True)
+                    container.write(openai_response.choices[0].message.content)
+                except Exception as e:
+                    st.error(f"Error: {e}")
         with st.sidebar.expander("", expanded=False):
             components.html(set_local_storage_js("openai_api_key", openai_api_key), height=0)
             components.html(set_local_storage_js("temperature", openai_temperature), height=0)
@@ -121,37 +122,38 @@ with tab2:
         if not grok_api_key:
             st.error("Please provide a valid API key.")
         else:
-            try:
-                api_url = "https://api.x.ai/v1/chat/completions"
-                headers = {
-                    "Authorization": f"Bearer {grok_api_key}",
-                    "Content-Type": "application/json"
-                }
-                data = {
-                    "model": "grok-2-latest",
-                    "messages": [
-                        {
-                            "role": "system",
-                            "content": grok_system_prompt,
-                        },
-                        {
-                            "role": "user",
-                            "content": grok_user_prompt,
-                        },
-                    ],
-                    "stream": False,
-                    "temperature": grok_temperature,
-                }
-                grok_response = requests.post(
-                    api_url, headers=headers, json=data
-                )
-                grok_response.raise_for_status()
-                grok_result = grok_response.json()
-                grok_response_text = grok_result["choices"][0]["message"]["content"]
-                container = st.container(border=True)
-                container.write(grok_response_text)
-            except Exception as e:
-                st.error(f"Error: {e}")
+            with st.spinner("Generating response..."):
+                try:
+                    api_url = "https://api.x.ai/v1/chat/completions"
+                    headers = {
+                        "Authorization": f"Bearer {grok_api_key}",
+                        "Content-Type": "application/json"
+                    }
+                    data = {
+                        "model": "grok-2-latest",
+                        "messages": [
+                            {
+                                "role": "system",
+                                "content": grok_system_prompt,
+                            },
+                            {
+                                "role": "user",
+                                "content": grok_user_prompt,
+                            },
+                        ],
+                        "stream": False,
+                        "temperature": grok_temperature,
+                    }
+                    grok_response = requests.post(
+                        api_url, headers=headers, json=data
+                    )
+                    grok_response.raise_for_status()
+                    grok_result = grok_response.json()
+                    grok_response_text = grok_result["choices"][0]["message"]["content"]
+                    container = st.container(border=True)
+                    container.write(grok_response_text)
+                except Exception as e:
+                    st.error(f"Error: {e}")
         with st.sidebar.expander("", expanded=False):
             components.html(set_local_storage_js("grok_api_key", grok_api_key), height=0)
             components.html(set_local_storage_js("grok_temperature", temperature), height=0)
