@@ -213,9 +213,13 @@ with tab3:
         with col3:
             if dalle_selected_model == "dall-e-3":
                 dalle_style = st.selectbox("Dall-e Style", dalle_style_options)
+                dalle_image_size = st.selectbox(
+                    "Image Size", ["1024x1024", "1792x1024", "1024x1792"]
+                )
                 resize_factor_value = 50
             else:
                 dalle_style = None
+                dalle_image_size = "512x512"
                 resize_factor_value = 100
 
         dalle_prompt = st.text_area("Dall-e Prompt", height=150)
@@ -234,10 +238,6 @@ with tab3:
             with topcol2:
                 with st.spinner("Generating image..."):
                     api_url = "https://api.openai.com/v1/images/generations"
-                    if dalle_selected_model == "dall-e-2":
-                        image_size = "512x512"
-                    elif dalle_selected_model == "dall-e-3":
-                        image_size = "1024x1024"
                     headers = {
                         "Authorization": f"Bearer {dalle_api_key}",
                         "Content-Type": "application/json",
@@ -246,7 +246,7 @@ with tab3:
                         "model": dalle_selected_model,
                         "prompt": dalle_prompt,
                         "n": 1,
-                        "size": image_size,
+                        "size": dalle_image_size,
                     }
                     if dalle_style:
                         # Extract style and quality from dalle_style (format: "{style} - {quality}")
